@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-Shop Express - Application Boutique</title>
+    
+    <!-- Manifest PWA intégré via Data URI pour une installation instantanée sans fichier externe -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22E-Shop%20Express%22%2C%22short_name%22%3A%22EShop%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%2325D366%22%2C%22orientation%22%3A%22portrait-primary%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3081%2F3081559.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+    <meta name="theme-color" content="#25D366">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Framework Tailwind CSS & Icônes FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Font Plus Jakarta Sans pour une typographie haut de gamme -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-20 md:pb-6">
+
+    <!-- Bannière intelligente de proposition d'installation de l'App (visible sur mobile) -->
+    <div id="pwa-install-banner" class="hidden bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-3.5 text-sm md:text-base flex items-center justify-between sticky top-0 z-50 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/20 p-2.5 rounded-xl">
+                <i class="fa-solid fa-cloud-arrow-down text-lg"></i>
+            </div>
+            <div>
+                <p class="font-extrabold text-sm leading-tight">Installer notre Application Gratuite</p>
+                <p class="text-[11px] text-emerald-100 mt-0.5">Ajoutez-la sur votre écran pour commander encore plus vite !</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="btn-install-app" class="bg-white text-emerald-700 font-bold px-4 py-2 rounded-xl shadow-md hover:bg-emerald-50 transition duration-200 active:scale-95 text-xs">INSTALLER</button>
+            <button id="btn-close-banner" class="p-1 hover:text-emerald-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+    </div>
+
+    <!-- En-tête supérieur de la boutique -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 px-4 py-4 shadow-sm">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md shadow-emerald-500/20">
+                    <i class="fa-solid fa-bag-shopping text-lg animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg leading-none text-slate-900 tracking-tight">FAST<span class="text-emerald-500">BOUTIQUE</span></h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Commandes directes</p>
+                </div>
+            </div>
+            <!-- Bouton d'appel rapide direct -->
+            <a href="tel:+221770000000" id="header-call-btn" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition active:scale-95">
+                <i class="fa-solid fa-headset text-emerald-500"></i>
+                <span class="hidden sm:inline">Des questions ?</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-grow">
+        
+        <!-- Bannière attractive incitant à l'action -->
+        <div class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 md:p-8 mb-8 text-white relative overflow-hidden shadow-xl shadow-emerald-950/20">
+            <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            <div class="relative z-10 max-w-xl">
+                <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-3 py-1 rounded-full border border-emerald-500/30 uppercase tracking-wider">🔥 Vente Flash</span>
+                <h2 class="text-2xl md:text-3.5xl font-extrabold mt-4 leading-tight">Commandez en 1 clic,<br>payez à la livraison !</h2>
+                <p class="text-slate-300 text-xs md:text-sm mt-3 font-normal leading-relaxed">Simplifiez vos achats. Plus besoin de carte bancaire, cliquez sur WhatsApp ou passez un appel direct pour réserver votre article instantanément.</p>
+                <div class="flex flex-wrap gap-3 mt-5 text-[11px] font-semibold text-slate-200">
+                    <span class="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-truck-fast text-emerald-400"></i> Livraison ultra-rapide</span>
+                    <span class="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-xl"><i class="fa-solid fa-shield-heart text-emerald-400"></i> Qualité Garantie</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Système de recherche et de filtres par catégories -->
+        <div class="mb-8 space-y-4">
+            <div class="relative max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input id="search-input" type="text" placeholder="Rechercher un article..." class="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 text-sm focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 shadow-sm transition">
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <button class="category-btn active px-5 py-2.5 bg-emerald-500 text-white rounded-2xl text-xs font-bold shadow-md shadow-emerald-500/20 transition whitespace-nowrap" data-category="all">⚡ Tout voir</button>
+                <button class="category-btn px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-600 rounded-2xl text-xs font-bold shadow-sm border border-slate-200 transition whitespace-nowrap" data-category="electronique">Électronique</button>
+                <button class="category-btn px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-600 rounded-2xl text-xs font-bold shadow-sm border border-slate-200 transition whitespace-nowrap" data-category="mode">Mode & Style</button>
+                <button class="category-btn px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-600 rounded-2xl text-xs font-bold shadow-sm border border-slate-200 transition whitespace-nowrap" data-category="accessoires">Accessoires</button>
+            </div>
+        </div>
+
+        <!-- Grille Responsive des Produits -->
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="font-extrabold text-lg text-slate-900">Articles disponibles</h3>
+            <span id="results-count" class="text-xs text-slate-500 font-bold bg-slate-200/80 px-3 py-1 rounded-full">0 Produits</span>
+        </div>
+
+        <div id="products-grid" class="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Injecté de manière dynamique par le script JS -->
+        </div>
+
+        <!-- Alerte si aucun produit trouvé -->
+        <div id="no-products" class="hidden py-16 text-center">
+            <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-slate-400 mb-4 text-xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <p class="font-extrabold text-slate-700">Aucun produit trouvé</p>
+            <p class="text-slate-400 text-xs mt-1">Modifiez votre recherche ou changez de filtre.</p>
+        </div>
+
+    </main>
+
+    <!-- Barre de Navigation de type App Native (Visible uniquement sur mobile) -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 py-3 px-8 flex justify-around items-center z-40 md:hidden shadow-2xl">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center gap-1 text-emerald-500">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] font-bold">Boutique</span>
+        </button>
+        <a href="tel:+221770000000" id="footer-call-btn" class="flex flex-col items-center gap-1 text-slate-400 hover:text-emerald-500 transition">
+            <i class="fa-solid fa-phone text-lg"></i>
+            <span class="text-[10px] font-bold">Appeler</span>
+        </a>
+        <a href="https://wa.me/221770000000" id="footer-wa-btn" target="_blank" class="flex flex-col items-center gap-1 text-slate-400 hover:text-emerald-500 transition">
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+            <span class="text-[10px] font-bold">WhatsApp</span>
+        </a>
+    </div>
+
+    <!-- Fenêtre Modale de détails d'un produit -->
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300">
+        <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl transform translate-y-full sm:translate-y-0 transition-transform duration-300 flex flex-col max-h-[90vh]">
+            <div class="relative">
+                <button id="close-modal-btn" class="absolute right-4 top-4 bg-black/40 hover:bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 active:scale-95"><i class="fa-solid fa-xmark"></i></button>
+                <div class="aspect-square bg-slate-100 w-full relative">
+                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <span id="modal-badge" class="bg-rose-100 text-rose-600 text-[10px] font-extrabold px-2.5 py-1 rounded-full inline-block">PROMO</span>
+                <h2 id="modal-title" class="text-xl font-bold text-slate-950 mt-2">Détails de l'article</h2>
+                <p id="modal-desc" class="text-slate-500 text-xs mt-2 leading-relaxed">Description complète du produit.</p>
+                <div class="flex items-baseline gap-2 mt-4 mb-6">
+                    <span id="modal-price" class="text-2xl font-black text-slate-950">0 F</span>
+                    <span id="modal-old-price" class="text-sm line-through text-slate-400">0 F</span>
+                </div>
+                <div class="space-y-3">
+                    <a id="modal-wa-btn" href="" target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold w-full py-3.5 rounded-xl shadow-md transition active:scale-95 text-xs uppercase tracking-wider">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Commander via WhatsApp
+                    </a>
+                    <a id="modal-call-btn" href="" class="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-850 text-white font-bold w-full py-3.5 rounded-xl shadow-md transition active:scale-95 text-xs uppercase tracking-wider">
+                        <i class="fa-solid fa-phone text-sm"></i> Commander par Téléphone
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION PRINCIPALE DE VOTRE BOUTIQUE
+        // ==========================================
+        const SHOP_CONFIG = {
+            whatsappNumber: "221770000000",   // Votre numéro sans '+' ni espaces pour l'API WhatsApp
+            phoneCallNumber: "+221770000000", // Votre numéro complet avec '+' pour passer des appels directs
+            currency: "FCFA"                  // Votre symbole monétaire
+        };
+
+        // ==========================================
+        // BASE DE DONNÉES DES ARTICLES PAR DÉFAUT
+        // ==========================================
+        const PRODUCTS_DB = [
+            {
+                id: 1,
+                title: "Montre Connectée Sport Pro",
+                description: "Suivi de santé complet, autonomie de 10 jours, étanche et compatible iOS / Android.",
+                price: 25000,
+                oldPrice: 35000,
+                badge: "Top Vente",
+                category: "electronique",
+                image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 2,
+                title: "Écouteurs Hi-Fi Sans Fil",
+                description: "Réduction de bruit active, basses profondes ultra immersives, micro HD intégré.",
+                price: 15000,
+                oldPrice: 19000,
+                badge: "Nouveau",
+                category: "electronique",
+                image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 3,
+                title: "Sac à Dos Urban Voyager",
+                description: "Design ergonomique, matière imperméable avec compartiment PC renforcé et port USB externe.",
+                price: 18000,
+                oldPrice: null,
+                badge: "Populaire",
+                category: "accessoires",
+                image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 4,
+                title: "Sneakers Street Run Pro",
+                description: "Paires ultra-légères offrant un confort optimal et un design urbain moderne d'exception.",
+                price: 32000,
+                oldPrice: 40000,
+                badge: "-20%",
+                category: "mode",
+                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 5,
+                title: "Parfum Bois d'Argent",
+                description: "Une fragrance boisée et intense, tenue longue durée garantie. Contenance 100ml.",
+                price: 45000,
+                oldPrice: 60000,
+                badge: "Sélection",
+                category: "mode",
+                image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 6,
+                title: "Lunettes de Soleil Polarisées",
+                description: "Verres avec filtres antireflets de catégorie 3, design intemporel en alliage léger.",
+                price: 12000,
+                oldPrice: null,
+                badge: null,
+                category: "accessoires",
+                image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=600"
+            }
+        ];
+
+        // Synchroniser les coordonnées avec la configuration générale
+        document.getElementById('header-call-btn').href = "tel:" + SHOP_CONFIG.phoneCallNumber;
+        document.getElementById('footer-call-btn').href = "tel:" + SHOP_CONFIG.phoneCallNumber;
+        document.getElementById('footer-wa-btn').href = "https://wa.me/" + SHOP_CONFIG.whatsappNumber;
+
+        let activeCategory = 'all';
+        let filterQuery = '';
+
+        const productsGrid = document.getElementById('products-grid');
+        const searchInput = document.getElementById('search-input');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const resultsCount = document.getElementById('results-count');
+        const noProducts = document.getElementById('no-products');
+
+        const modal = document.getElementById('product-modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalBadge = document.getElementById('modal-badge');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalPrice = document.getElementById('modal-price');
+        const modalOldPrice = document.getElementById('modal-old-price');
+        const modalWaBtn = document.getElementById('modal-wa-btn');
+        const modalCallBtn = document.getElementById('modal-call-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        // Rendu de la grille d'articles
+        function displayProducts() {
+            const filteredList = PRODUCTS_DB.filter(p => {
+                const checkCategory = activeCategory === 'all' || p.category === activeCategory;
+                const checkSearch = p.title.toLowerCase().includes(filterQuery.toLowerCase()) || 
+                                     p.description.toLowerCase().includes(filterQuery.toLowerCase());
+                return checkCategory && checkSearch;
+            });
+
+            productsGrid.innerHTML = '';
+            resultsCount.textContent = `${filteredList.length} Article${filteredList.length > 1 ? 's' : ''}`;
+
+            if (filteredList.length === 0) {
+                noProducts.classList.remove('hidden');
+                productsGrid.classList.add('hidden');
+                return;
+            }
+
+            noProducts.classList.add('hidden');
+            productsGrid.classList.remove('hidden');
+
+            filteredList.forEach(item => {
+                const messageWa = encodeURIComponent(`Bonjour, je souhaite commander l'article :\n\n- Nom : ${item.title}\n- Prix : ${item.price.toLocaleString()} ${SHOP_CONFIG.currency}`);
+                const linkWa = `https://wa.me/${SHOP_CONFIG.whatsappNumber}?text=${messageWa}`;
+                const linkCall = `tel:${SHOP_CONFIG.phoneCallNumber}`;
+
+                const cardElement = document.createElement('div');
+                cardElement.className = "bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col relative";
+                
+                cardElement.innerHTML = `
+                    ${item.badge ? `<span class="absolute top-3 left-3 bg-rose-500 text-white text-[9px] font-extrabold px-3 py-1 rounded-full z-10 shadow-sm uppercase">${item.badge}</span>` : ''}
+                    <div class="aspect-square bg-slate-50 overflow-hidden relative cursor-pointer" onclick="openProductModal(${item.id})">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                    </div>
+                    <div class="p-4 md:p-5 flex flex-col flex-grow">
+                        <h4 class="font-extrabold text-sm md:text-base text-slate-900 line-clamp-1 cursor-pointer" onclick="openProductModal(${item.id})">${item.title}</h4>
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-2">${item.description}</p>
+                        <div class="flex items-baseline gap-1.5 mt-3 mb-4">
+                            <span class="text-base md:text-lg font-black text-slate-950">${item.price.toLocaleString()} ${SHOP_CONFIG.currency}</span>
+                            ${item.oldPrice ? `<span class="text-[11px] line-through text-slate-400">${item.oldPrice.toLocaleString()} F</span>` : ''}
+                        </div>
+                        <div class="mt-auto space-y-2">
+                            <a href="${linkWa}" target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold py-3 px-3 rounded-2xl transition duration-200 active:scale-95 shadow-md shadow-emerald-500/10">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                            </a>
+                            <a href="${linkCall}" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold py-3 px-3 rounded-2xl transition duration-200 active:scale-95">
+                                <i class="fa-solid fa-phone text-xs"></i> Passer un appel
+                            </a>
+                        </div>
+                    </div>
+                `;
+                productsGrid.appendChild(cardElement);
+            });
+        }
+
+        // Gérer l'ouverture du Modal Détail
+        window.openProductModal = function(id) {
+            const item = PRODUCTS_DB.find(p => p.id === id);
+            if (!item) return;
+
+            modalImg.src = item.image;
+            modalImg.alt = item.title;
+            
+            if(item.badge) {
+                modalBadge.textContent = item.badge;
+                modalBadge.classList.remove('hidden');
+            } else {
+                modalBadge.classList.add('hidden');
+            }
+
+            modalTitle.textContent = item.title;
+            modalDesc.textContent = item.description;
+            modalPrice.textContent = `${item.price.toLocaleString()} ${SHOP_CONFIG.currency}`;
+            
+            if(item.oldPrice) {
+                modalOldPrice.textContent = `${item.oldPrice.toLocaleString()} ${SHOP_CONFIG.currency}`;
+                modalOldPrice.classList.remove('hidden');
+            } else {
+                modalOldPrice.classList.add('hidden');
+            }
+
+            const messageWa = encodeURIComponent(`Bonjour, je souhaite commander l'article :\n\n- ${item.title}\n- Prix : ${item.price.toLocaleString()} ${SHOP_CONFIG.currency}`);
+            modalWaBtn.href = `https://wa.me/${SHOP_CONFIG.whatsappNumber}?text=${messageWa}`;
+            modalCallBtn.href = `tel:${SHOP_CONFIG.phoneCallNumber}`;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('translate-y-full');
+            }, 50);
+        };
+
+        // Fermer le Modal
+        function closeProductModal() {
+            modal.firstElementChild.classList.add('translate-y-full');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        closeModalBtn.addEventListener('click', closeProductModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeProductModal();
+        });
+
+        // Recherche en temps réel
+        searchInput.addEventListener('input', (e) => {
+            filterQuery = e.target.value;
+            displayProducts();
+        });
+
+        // Activation des boutons de catégorie
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-emerald-500', 'text-white', 'shadow-md', 'shadow-emerald-500/20');
+                    b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+                });
+                btn.classList.add('active', 'bg-emerald-500', 'text-white', 'shadow-md', 'shadow-emerald-500/20');
+                btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+                activeCategory = btn.getAttribute('data-category');
+                displayProducts();
+            });
+        });
+
+        // Service Worker intégré à la volée (requis par Chrome/Safari pour l'installation d'une PWA)
+        let deferredPrompt;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('btn-install-app');
+        const closeBannerBtn = document.getElementById('btn-close-banner');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!sessionStorage.getItem('pwa_banner_hidden')) {
+                installBanner.classList.remove('hidden');
+            }
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBanner.classList.add('hidden');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        closeBannerBtn.addEventListener('click', () => {
+            installBanner.classList.add('hidden');
+            sessionStorage.setItem('pwa_banner_hidden', 'true');
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'fastshop-v1';
+                    self.addEventListener('install', event => {
+                        event.waitUntil(caches.open(CACHE_NAME));
+                    });
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            caches.match(event.request).then(response => {
+                                return response || fetch(event.request);
+                            })
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(reg => console.log('PWA Service Worker configuré !'))
+                    .catch(err => console.log('Erreur SW', err));
+            });
+        }
+
+        // Chargement initial des données
+        displayProducts();
+    </script>
+</body>
+</html>
